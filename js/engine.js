@@ -80,7 +80,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
     /* This is called by the update function  and loops through all of the
@@ -94,7 +94,32 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+
+        if (allEnemies.length < 3)
+        {
+          for (var i = Math.random() * 3; i >= 0; i--)
+          {
+            allEnemies.push(new Enemy(playground.getRandomEnemySpawnCoordinate()));
+          }
+        }
+
+        player.update(dt);
+    }
+
+    function checkCollisions(){
+        // TODO: Check water collusion
+        var drowning = player.y < playground.grid.heightHalf;
+        var bugless = allEnemies.every(function (enemy) {
+          return !(Math.abs(player.x - enemy.x) < playground.grid.widthHalf &&
+                   Math.abs(player.y - enemy.y) < playground.grid.heightHalf);
+        });
+
+        // TODO: Check enemy collusion
+        player.alive = !drowning && bugless;
+
+        if(player.alive == false) {
+          reset();
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -161,6 +186,16 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
+        console.log("noop");
+
+        var allEnemies = [
+          new Enemy(playground.getRandomEnemySpawnCoordinate()),
+          new Enemy(playground.getRandomEnemySpawnCoordinate()),
+          new Enemy(playground.getRandomEnemySpawnCoordinate()),
+          new Enemy(playground.getRandomEnemySpawnCoordinate())
+        ];
+
+        player = new Player(playground.getRandomPlayerSpawnCoordinate());
     }
 
     /* Go ahead and load all of the images we know we're going to need to
